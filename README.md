@@ -1,6 +1,6 @@
 # game of life challenge at codepen
 
-![pic](https://i.imgur.com/tNQUUsh.png)
+![pic](https://i.imgur.com/oTj8cOP.png)
 
 submission: https://codepen.io/ildarmgt/full/OJVQMaY
 

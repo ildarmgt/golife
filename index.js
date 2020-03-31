@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/*                                  st                                  */
+/*                                  settings                                  */
 /* -------------------------------------------------------------------------- */
 
 const initialSettings = {
@@ -52,11 +52,21 @@ const initialSettings = {
   stepTransition: '0.2s' // ~ step change render
 }
 /* -------------------------------------------------------------------------- */
-/*                                  st end                              */
+/*                                  settings end                              */
 /* -------------------------------------------------------------------------- */
+
+// state
+let mouse, st
 
 // initialize
 const main = () => {
+  mouse = JSON.parse(JSON.stringify(initialMouse))
+  st = {
+    ...JSON.parse(JSON.stringify(initialSettings)),
+    step: 0,
+    resizeTimer: null
+  }
+
   initializePenCss()
 
   // start rendering loop (no transition on 1st frame)
@@ -66,6 +76,7 @@ const main = () => {
   window.addEventListener('mousedown', handleMouseDown)
   window.addEventListener('mouseup', handleMouseUp)
   window.addEventListener('resize', handleResize)
+  stopTransitionsOnResize()
 }
 
 // main loop
@@ -74,6 +85,7 @@ const drawFrame = async (ourLife, lastStep = Date.now()) => {
   await new Promise(r => setTimeout(r, 1000 / st.framesPerSecond))
 
   // left mouse button down => new cells
+  // right mouse button down => ded cells
   if (mouse.left) ourLife = ourLife.forceAlive(mouse.x, mouse.y)
   if (mouse.right) ourLife = ourLife.forceDead(mouse.x, mouse.y)
 
@@ -107,9 +119,7 @@ const thisLife = (life = null) => {
       alive: false,
       count: 0
     })
-    return thisLife(newLife)
-      .updateAllCounts()
-      .printLog(`step ${st.step}`)
+    return thisLife(newLife).updateAllCounts()
   }
   // init with seed
   if (typeof life === 'string') {
@@ -124,9 +134,7 @@ const thisLife = (life = null) => {
         count: 0,
         alive: lifeSeed[i] ? lifeSeed[i] === 1 : v.alive
       }))
-    )
-      .updateAllCounts()
-      .printLog(`step ${st.step}`)
+    ).updateAllCounts()
   }
 
   // reset counts for all to 0
@@ -238,9 +246,10 @@ const thisLife = (life = null) => {
     return thisAlive // no change
   }
 
+  // print previous step log, update counts, advance step
   const takeStep = (step = 0) => {
     return thisLife(life)
-      .printLog(`step ${step}`)
+      .printLog(`step ${step - 1}`)
       .updateAllCounts()
       .updateToNextStepLives()
   }
@@ -516,12 +525,4 @@ const updateHeader = (cssString, forWho = 'divpen') => {
 /*                                   run it                                   */
 /* -------------------------------------------------------------------------- */
 
-// run program
-let mouse = JSON.parse(JSON.stringify(initialMouse))
-let st = {
-  ...JSON.parse(JSON.stringify(initialSettings)),
-  step: 0,
-  resizeTimer: null
-}
-stopTransitionsOnResize()
 main()
